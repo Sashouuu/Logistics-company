@@ -1,1 +1,2 @@
-kkhkjhkl
+while True:
+    print("Hello")
