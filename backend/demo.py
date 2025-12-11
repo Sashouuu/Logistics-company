@@ -1,8 +1,8 @@
-print("nothing")
-print("nothinsdfsdfg")
-print("i am sick of trying to figure this shit out")
-print("I think I figured it out")
-print("nothing")
-print("nothinsdfsdfg")
-print("i am sick of trying to figure this shit out")
-print("I think I figured it out")
+"""Demo script (placeholder)."""
+
+def main():
+	print("Demo: backend scripts are present. Run the Flask app to serve the frontend.")
+
+
+if __name__ == '__main__':
+	main()

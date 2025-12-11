@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="bg">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Logistics Company</title>
+  <link rel="stylesheet" href="assets/logistics-company.css">
+  <meta name="description" content="Логистична компания - демонстрационен уебсайт" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <h1 class="logo">Logistics Co.</h1>
+      <nav class="main-nav" id="mainNav">
+        <a href="#services">Услуги</a>
+        <a href="#about">За нас</a>
+        <a href="#contact">Контакти</a>
+      </nav>
+      <button id="navToggle" class="nav-toggle">☰</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container">
+        <h2>Надеждна логистика и бързи доставки</h2>
+        <p>Ние предлагаме решения за транспорт, складиране и логистични услуги.</p>
+        <a class="cta" href="#contact">Свържете се с нас</a>
+      </div>
+    </section>
+
+    <section id="services" class="container services">
+      <h3>Нашите услуги</h3>
+      <div class="cards">
+        <article class="card">
+          <h4>Транспорт</h4>
+          <p>Сухопътен и международен транспорт с проследяване в реално време.</p>
+        </article>
+        <article class="card">
+          <h4>Складиране</h4>
+          <p>Сигурно складиране и управление на инвентар.</p>
+        </article>
+        <article class="card">
+          <h4>Логистични решения</h4>
+          <p>Оптимизация на веригата за доставки и 3PL услуги.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="about" class="container about">
+      <h3>За нас</h3>
+      <p>Демонстрационен проект за учебни цели. Информацията в сайта е примерна.</p>
+    </section>
+
+    <section id="contact" class="container contact">
+      <h3>Контакти</h3>
+      <form id="contactForm">
+        <label>Име<input name="name" required></label>
+        <label>Имейл<input type="email" name="email" required></label>
+        <label>Съобщение<textarea name="message" rows="4" required></textarea></label>
+        <button type="submit">Изпрати</button>
+      </form>
+      <div id="formMsg" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer container">
+    <p>&copy; 2025 Logistics Co. Всички права запазени.</p>
+  </footer>
+
+  <script src="assets/logistics-company.js"></script>
+</body>
+</html>
