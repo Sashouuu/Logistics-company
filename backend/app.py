@@ -42,11 +42,22 @@ DB_CONFIG = {
 
 POOL_SIZE = int(os.getenv("DB_POOL_SIZE", "5"))
 
-pool = pooling.MySQLConnectionPool(
-    pool_name="logistics_pool",
-    pool_size=POOL_SIZE,
-    **DB_CONFIG,
-)
+pool = None
+
+def get_pool():
+    """Lazy initialization of database connection pool."""
+    global pool
+    if pool is None:
+        try:
+            pool = pooling.MySQLConnectionPool(
+                pool_name="logistics_pool",
+                pool_size=POOL_SIZE,
+                **DB_CONFIG,
+            )
+        except Exception as e:
+            print(f"Warning: Database connection failed: {e}")
+            print("Frontend will still be served, but API endpoints will fail.")
+    return pool
 
 
 def db_query(
@@ -56,7 +67,10 @@ def db_query(
     fetchone: bool = False,
 ) -> Any:
     """Run SELECT queries and return rows (dicts)."""
-    conn = pool.get_connection()
+    pool_obj = get_pool()
+    if pool_obj is None:
+        return None if fetchone else []
+    conn = pool_obj.get_connection()
     try:
         cur = conn.cursor(dictionary=True)
         cur.execute(sql, params or ())
@@ -76,7 +90,10 @@ def db_execute(
     params: Tuple[Any, ...] | List[Any] | None = None,
 ) -> Dict[str, Any]:
     """Run INSERT/UPDATE/DELETE queries and commit."""
-    conn = pool.get_connection()
+    pool_obj = get_pool()
+    if pool_obj is None:
+        return {"error": "Database not available", "affected": 0, "lastrowid": 0}
+    conn = pool_obj.get_connection()
     try:
         cur = conn.cursor()
         cur.execute(sql, params or ())
