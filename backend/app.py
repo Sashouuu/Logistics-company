@@ -779,6 +779,32 @@ def report_revenue():
 
 
 # ----------------------------
+# Contact form (demo endpoint)
+# ----------------------------
+@app.route("/api/contact", methods=["POST"])
+def contact_form():
+    """Simple contact form endpoint (demo, doesn't persist to DB)."""
+    data = request.get_json(silent=True) or {}
+    name = (data.get("name") or "").strip()
+    email = (data.get("email") or "").strip()
+    message = (data.get("message") or "").strip()
+
+    if not all([name, email, message]):
+        return api_error("name, email, and message are required")
+
+    # In a real app, you would save this to the database
+    # For now, just log and return success
+    print(f"Contact form: {name} ({email}) - {message}")
+
+    return jsonify(
+        {
+            "message": "Благодарим ви! Съобщението беше успешно изпратено.",
+            "received": {"name": name, "email": email, "message": message},
+        }
+    )
+
+
+# ----------------------------
 # Frontend routes (static)
 # ----------------------------
 @app.route("/")
