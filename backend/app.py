@@ -20,7 +20,8 @@ from werkzeug.security import check_password_hash
 BASE_DIR = Path(__file__).resolve().parent.parent
 FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
 
-app = Flask(__name__, static_folder=FRONTEND_DIR, static_url_path="")
+# Serve frontend files directly from the frontend folder
+app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "dev-secret-change-me")
 
 # If frontend is served from same Flask app, CORS isn't necessary,
@@ -820,6 +821,10 @@ def static_files(filename: str):
     # Prevent accidental capture of /api/* by this catch-all route
     if filename.startswith("api/") or filename == "api":
         return api_error("Not found", 404)
+    
+    file_path = os.path.join(FRONTEND_DIR, filename)
+    if not os.path.exists(file_path):
+        return api_error(f"File not found: {filename}", 404)
 
     return send_from_directory(FRONTEND_DIR, filename)
 
