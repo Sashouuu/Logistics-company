@@ -5,6 +5,8 @@ from routes import register_routes
 import models
 
 
+
+
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
