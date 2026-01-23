@@ -2,6 +2,7 @@ from flask import Flask, jsonify, render_template
 from config import Config
 from extensions import db, migrate, jwt
 from routes import register_routes
+import models
 
 
 def create_app():
