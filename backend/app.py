@@ -1,7 +1,8 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, render_template
 from config import Config
 from extensions import db, migrate, jwt
 from routes import register_routes
+
 
 def create_app():
     app = Flask(__name__)
@@ -14,6 +15,10 @@ def create_app():
 
     # Routes
     register_routes(app)
+
+    @app.get("/")
+    def home():
+        return render_template("logistics-company.html")
 
     @app.get("/api/health")
     def health():
