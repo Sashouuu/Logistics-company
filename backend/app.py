@@ -4,9 +4,6 @@ from extensions import db, migrate, jwt
 from routes import register_routes
 import models
 
-
-
-
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
