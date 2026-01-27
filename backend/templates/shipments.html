@@ -1,34 +1,89 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Shipments</title>
+    <title>Мои Пратки</title>
+    <link rel="stylesheet" href="/static/css/shipments.css">
 </head>
 <body>
 
-<h2>Shipments</h2>
-<button onclick="loadShipments()">Load shipments</button>
+<div class="container">
+    <div class="header">
+        <h1>Мои Пратки</h1>
+        <button onclick="logout()" class="logout-btn">Излез</button>
+    </div>
 
-<pre id="result"></pre>
+    <div class="tabs">
+        <button onclick="showTab('my-shipments')" class="tab-btn active">Моите пратки</button>
+        <button onclick="showTab('send-shipment')" class="tab-btn">Изпрати нова пратка</button>
+    </div>
 
-<script>
-async function loadShipments() {
-    const token = localStorage.getItem("access_token");
+    <!-- My Shipments Tab -->
+    <div id="my-shipments" class="tab-content active">
+        <h2>Моите Пратки</h2>
+        <div class="filter-section">
+            <button onclick="filterShipments('ALL')" class="filter-btn active" id="filter-all">Всички</button>
+            <button onclick="filterShipments('PENDING')" class="filter-btn" id="filter-pending">В очакване</button>
+            <button onclick="filterShipments('IN_TRANSIT')" class="filter-btn" id="filter-transit">В пътя</button>
+            <button onclick="filterShipments('DELIVERED')" class="filter-btn" id="filter-delivered">Доставени</button>
+        </div>
+        <div id="shipmentsContainer" class="shipments-container">
+            <p>Зареждане на пратки...</p>
+        </div>
+    </div>
 
-    if (!token) {
-        window.location.href = "/login.html";
-        return;
-    }
+    <!-- Send Shipment Tab -->
+    <div id="send-shipment" class="tab-content">
+        <h2>Изпрати нова пратка</h2>
+        <form id="sendShipmentForm" class="shipment-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Получател (клиент):</label>
+                    <select id="receiver_id" required>
+                        <option value="">Избери получател</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Тегло (кг):</label>
+                    <input type="number" id="send_weight" step="0.1" required>
+                </div>
+            </div>
 
-    const response = await fetch("/api/shipments", {
-        headers: {
-            "Authorization": "Bearer " + token
-        }
-    });
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Размери (ДxШxВ):</label>
+                    <input type="text" id="send_dimensions" placeholder="30x40x50" required>
+                </div>
+                <div class="form-group">
+                    <label>Цена (BGN):</label>
+                    <input type="number" id="send_price" step="0.01" required>
+                </div>
+            </div>
 
-    const data = await response.json();
-    document.getElementById("result").innerText = JSON.stringify(data, null, 2);
-}
-</script>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>От адрес:</label>
+                    <input type="text" id="send_origin_address" required>
+                </div>
+                <div class="form-group">
+                    <label>До адрес:</label>
+                    <input type="text" id="send_destination_address" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Описание:</label>
+                <textarea id="send_description" required></textarea>
+            </div>
+
+            <button type="submit" class="btn-submit">Изпрати пратка</button>
+            <div id="sendFormMessage"></div>
+        </form>
+    </div>
+
+    <div id="message"></div>
+</div>
+
+<script src="/static/js/shipments.js"></script>
 
 </body>
 </html>

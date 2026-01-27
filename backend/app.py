@@ -20,6 +20,22 @@ def create_app():
     def home():
         return render_template("logistics-company.html")
 
+    @app.get("/login.html")
+    def login():
+        return render_template("login.html")
+
+    @app.get("/register.html")
+    def register():
+        return render_template("register.html")
+
+    @app.get("/shipments.html")
+    def shipments():
+        return render_template("shipments.html")
+
+    @app.get("/dashboard.html")
+    def dashboard():
+        return render_template("dashboard.html")
+
     @app.get("/api/health")
     def health():
         return jsonify({"status": "ok"})

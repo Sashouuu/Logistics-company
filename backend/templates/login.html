@@ -1,46 +1,28 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Login</title>
+    <title>Влизане</title>
+    <link rel="stylesheet" href="/static/css/login.css">
 </head>
 <body>
 
-<h2>Login</h2>
+<h2>Влизане</h2>
 
-<input type="email" id="email" placeholder="Email">
-<br><br>
-<input type="password" id="password" placeholder="Password">
-<br><br>
-<button onclick="login()">Login</button>
+<div class="form-group">
+    <input type="email" id="email" placeholder="Имейл">
+</div>
 
-<p id="error" style="color:red;"></p>
+<div class="form-group">
+    <input type="password" id="password" placeholder="Парола">
+</div>
 
-<script>
-async function login() {
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
+<button onclick="login()">Влез</button>
 
-    const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ email, password })
-    });
+<div id="message"></div>
 
-    const data = await response.json();
+<a href="/register.html">Нямаш профил? Регистрирай се</a>
 
-    if (!response.ok) {
-        document.getElementById("error").innerText = data.error;
-        return;
-    }
-
-    // ⬇️ ТУК Е МАГИЯТА
-    localStorage.setItem("access_token", data.access_token);
-
-    window.location.href = "/shipments.html";
-}
-</script>
+<script src="/static/js/login.js"></script>
 
 </body>
 </html>

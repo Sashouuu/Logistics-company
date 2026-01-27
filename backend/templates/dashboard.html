@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard - Служител</title>
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="logo">
+        <h2>FastLogistics</h2>
+    </div>
+    <nav>
+        <ul>
+            <li><a href="#" onclick="showSection('overview')" class="nav-link active" id="nav-overview">Преглед</a></li>
+            <li><a href="#" onclick="showSection('shipments')" class="nav-link" id="nav-shipments">Пратки</a></li>
+            <li><a href="#" onclick="showSection('register-shipment')" class="nav-link" id="nav-register">Регистрирай пратка</a></li>
+            <li><a href="#" onclick="showSection('reports')" class="nav-link" id="nav-reports">Справки</a></li>
+            <li><a href="#" onclick="showSection('management')" class="nav-link" id="nav-management">Управление</a></li>
+            <li><a href="#" onclick="logout()" class="nav-link logout-link">Излез</a></li>
+        </ul>
+    </nav>
+</div>
+
+<div class="main-content">
+    <div class="header">
+        <h1>Dashboard - Логистична компания</h1>
+        <div class="user-info" id="userInfo"></div>
+    </div>
+
+    <!-- Overview Section -->
+    <div id="overview" class="section active">
+        <h2>Преглед</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Всички пратки</h3>
+                <p class="stat-number" id="totalShipments">-</p>
+            </div>
+            <div class="stat-card">
+                <h3>В очакване</h3>
+                <p class="stat-number" id="pendingShipments">-</p>
+            </div>
+            <div class="stat-card">
+                <h3>В пътя</h3>
+                <p class="stat-number" id="transitShipments">-</p>
+            </div>
+            <div class="stat-card">
+                <h3>Доставени</h3>
+                <p class="stat-number" id="deliveredShipments">-</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Shipments Section -->
+    <div id="shipments" class="section">
+        <h2>Пратки</h2>
+        <div class="filter-section">
+            <button onclick="filterEmployeeShipments('ALL')" class="filter-btn active" id="emp-filter-all">Всички</button>
+            <button onclick="filterEmployeeShipments('PENDING')" class="filter-btn" id="emp-filter-pending">В очакване</button>
+            <button onclick="filterEmployeeShipments('IN_TRANSIT')" class="filter-btn" id="emp-filter-transit">В пътя</button>
+            <button onclick="filterEmployeeShipments('DELIVERED')" class="filter-btn" id="emp-filter-delivered">Доставени</button>
+        </div>
+        <div id="employeeShipmentsContainer" class="shipments-container">
+            <p>Зареждане на пратки...</p>
+        </div>
+    </div>
+
+    <!-- Register Shipment Section -->
+    <div id="register-shipment" class="section">
+        <h2>Регистрирай нова пратка</h2>
+        <form id="shipmentForm" class="shipment-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Номер за проследяване:</label>
+                    <input type="text" id="tracking_number" required>
+                </div>
+                <div class="form-group">
+                    <label>Клиент (изпращач):</label>
+                    <select id="sender_id" required onchange="loadClientInfo('sender')">
+                        <option value="">Избери клиент</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Клиент (получател):</label>
+                    <select id="receiver_id" required onchange="loadClientInfo('receiver')">
+                        <option value="">Избери клиент</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Тегло (кг):</label>
+                    <input type="number" id="weight" step="0.1" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Размери (ДxШxВ):</label>
+                    <input type="text" id="dimensions" placeholder="30x40x50" required>
+                </div>
+                <div class="form-group">
+                    <label>Цена (BGN):</label>
+                    <input type="number" id="price" step="0.01" required>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>От адрес:</label>
+                    <input type="text" id="origin_address" required>
+                </div>
+                <div class="form-group">
+                    <label>До адрес:</label>
+                    <input type="text" id="destination_address" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Описание:</label>
+                <textarea id="description" required></textarea>
+            </div>
+
+            <button type="submit" class="btn-submit">Регистрирай пратка</button>
+            <div id="formMessage"></div>
+        </form>
+    </div>
+
+    <!-- Reports Section -->
+    <div id="reports" class="section">
+        <h2>Справки</h2>
+        <div class="reports-grid">
+            <div class="report-card">
+                <h3>Служители в компанията</h3>
+                <button onclick="showReport('employees')">Преглед</button>
+            </div>
+            <div class="report-card">
+                <h3>Клиенти на компанията</h3>
+                <button onclick="showReport('clients')">Преглед</button>
+            </div>
+            <div class="report-card">
+                <h3>Всички пратки</h3>
+                <button onclick="showReport('all-shipments')">Преглед</button>
+            </div>
+            <div class="report-card">
+                <h3>Неполучени пратки</h3>
+                <button onclick="showReport('undelivered')">Преглед</button>
+            </div>
+            <div class="report-card">
+                <h3>Приходи</h3>
+                <button onclick="showReport('revenue')">Преглед</button>
+            </div>
+        </div>
+        <div id="reportContainer"></div>
+    </div>
+
+    <!-- Management Section -->
+    <div id="management" class="section">
+        <h2>Управление</h2>
+        <div class="management-tabs">
+            <button onclick="showManagement('companies')" class="mgmt-tab active">Компании</button>
+            <button onclick="showManagement('offices')" class="mgmt-tab">Офиси</button>
+            <button onclick="showManagement('employees')" class="mgmt-tab">Служители</button>
+            <button onclick="showManagement('clients')" class="mgmt-tab">Клиенти</button>
+        </div>
+        <div id="managementContainer"></div>
+    </div>
+
+    <div id="message"></div>
+</div>
+
+<script src="/static/js/dashboard.js"></script>
+
+</body>
+</html>

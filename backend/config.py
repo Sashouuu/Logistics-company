@@ -9,8 +9,8 @@ class Config:
         "mysql+pymysql://{user}:{pwd}@{host}:{port}/{db}?charset=utf8mb4"
     ).format(
         user=os.getenv("DB_USER", "root"),
-        pwd=os.getenv("DB_PASSWORD", ""),
-        host=os.getenv("DB_HOST", "127.0.0.1"),
+        pwd=os.getenv("DB_PASSWORD", "admin$123"),
+        host=os.getenv("DB_HOST", "localhost"),
         port=os.getenv("DB_PORT", "3306"),
         db=os.getenv("DB_NAME", "logistics_company"),
     )
