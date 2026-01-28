@@ -5,16 +5,22 @@ from flask_jwt_extended import jwt_required, get_jwt
 
 office_bp = Blueprint("office", __name__, url_prefix="/api/office")
 
+# REQUIREMENT 3d: Office CRUD operations (Create, Read, Update, Delete)
+
 @office_bp.get("")
 @jwt_required()
 def get_offices():
-    """Get all offices - only for employees"""
+    """
+    REQUIREMENT 3d: Get all offices (Read)
+    Only employees can view offices
+    """
     claims = get_jwt()
     if claims.get("role") != "EMPLOYEE":
         return jsonify({"error": "Unauthorized"}), 403
     
     company_id = request.args.get("company_id")
     if company_id:
+        # Filter offices by company
         offices = Office.query.filter_by(company_id=company_id).all()
     else:
         offices = Office.query.all()
@@ -24,7 +30,9 @@ def get_offices():
 @office_bp.get("/<int:office_id>")
 @jwt_required()
 def get_office(office_id):
-    """Get a specific office"""
+    """
+    REQUIREMENT 3d: Get specific office details (Read)
+    """
     office = Office.query.get(office_id)
     if not office:
         return jsonify({"error": "Office not found"}), 404
@@ -34,7 +42,10 @@ def get_office(office_id):
 @office_bp.post("")
 @jwt_required()
 def create_office():
-    """Create a new office - only for employees"""
+    """
+    REQUIREMENT 3d: Create new office (CRUD - Create)
+    Only employees can create offices
+    """
     claims = get_jwt()
     if claims.get("role") != "EMPLOYEE":
         return jsonify({"error": "Unauthorized"}), 403
@@ -66,7 +77,10 @@ def create_office():
 @office_bp.put("/<int:office_id>")
 @jwt_required()
 def update_office(office_id):
-    """Update an office - only for employees"""
+    """
+    REQUIREMENT 3d: Update office details (CRUD - Update)
+    Only employees can update offices
+    """
     claims = get_jwt()
     if claims.get("role") != "EMPLOYEE":
         return jsonify({"error": "Unauthorized"}), 403
@@ -94,7 +108,10 @@ def update_office(office_id):
 @office_bp.delete("/<int:office_id>")
 @jwt_required()
 def delete_office(office_id):
-    """Delete an office - only for employees"""
+    """
+    REQUIREMENT 3d: Delete office (CRUD - Delete)
+    Only employees can delete offices
+    """
     claims = get_jwt()
     if claims.get("role") != "EMPLOYEE":
         return jsonify({"error": "Unauthorized"}), 403

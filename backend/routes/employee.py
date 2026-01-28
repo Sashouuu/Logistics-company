@@ -6,16 +6,24 @@ from flask_jwt_extended import jwt_required, get_jwt
 
 employee_bp = Blueprint("employee", __name__, url_prefix="/api/employee")
 
+# REQUIREMENT 3b: Employee CRUD operations (Create, Read, Update, Delete)
+# REQUIREMENT 5a: Report all employees
+
 @employee_bp.get("")
 @jwt_required()
 def get_employees():
-    """Get all employees - only for employees"""
+    """
+    REQUIREMENT 3b: Get all employees (Read)
+    REQUIREMENT 5a: Report all employees in the company
+    Only employees can view this list
+    """
     claims = get_jwt()
     if claims.get("role") != "EMPLOYEE":
         return jsonify({"error": "Unauthorized"}), 403
     
     company_id = request.args.get("company_id")
     if company_id:
+        # REQUIREMENT 5a: Filter by company
         employees = Employee.query.filter_by(company_id=company_id).all()
     else:
         employees = Employee.query.all()
@@ -25,7 +33,9 @@ def get_employees():
 @employee_bp.get("/<int:employee_id>")
 @jwt_required()
 def get_employee(employee_id):
-    """Get a specific employee"""
+    """
+    REQUIREMENT 3b: Get specific employee details (Read)
+    """
     employee = Employee.query.get(employee_id)
     if not employee:
         return jsonify({"error": "Employee not found"}), 404
@@ -35,7 +45,10 @@ def get_employee(employee_id):
 @employee_bp.post("")
 @jwt_required()
 def create_employee():
-    """Create a new employee - only for employees"""
+    """
+    REQUIREMENT 3b: Create new employee (CRUD - Create)
+    Only employees can create new employee records
+    """
     claims = get_jwt()
     if claims.get("role") != "EMPLOYEE":
         return jsonify({"error": "Unauthorized"}), 403
@@ -72,7 +85,10 @@ def create_employee():
 @employee_bp.put("/<int:employee_id>")
 @jwt_required()
 def update_employee(employee_id):
-    """Update an employee - only for employees"""
+    """
+    REQUIREMENT 3b: Update employee details (CRUD - Update)
+    Only employees can update employee records
+    """
     claims = get_jwt()
     if claims.get("role") != "EMPLOYEE":
         return jsonify({"error": "Unauthorized"}), 403
@@ -100,7 +116,10 @@ def update_employee(employee_id):
 @employee_bp.delete("/<int:employee_id>")
 @jwt_required()
 def delete_employee(employee_id):
-    """Delete an employee - only for employees"""
+    """
+    REQUIREMENT 3b: Delete employee (CRUD - Delete)
+    Only employees can delete employee records
+    """
     claims = get_jwt()
     if claims.get("role") != "EMPLOYEE":
         return jsonify({"error": "Unauthorized"}), 403

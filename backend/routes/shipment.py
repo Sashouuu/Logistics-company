@@ -9,19 +9,27 @@ from sqlalchemy import and_, or_
 
 shipment_bp = Blueprint("shipment", __name__, url_prefix="/api/shipment")
 
+# REQUIREMENT 3e: Shipment CRUD operations (Create, Read, Update, Delete)
+# REQUIREMENT 4: Employees register shipments (sent and received)
+# REQUIREMENT 6: Employees see all shipments
+# REQUIREMENT 7: Clients see their own shipments (sent or received)
+
 @shipment_bp.get("")
 @jwt_required()
 def get_shipments():
-    """Get shipments based on user role"""
+    """
+    REQUIREMENT 6: Employees can view all shipments
+    REQUIREMENT 7: Clients can only view their own shipments (sent or received)
+    """
     claims = get_jwt()
     user_id = claims.get("sub")
     role = claims.get("role")
     
     if role == "EMPLOYEE":
-        # Employees see all shipments
+        # REQUIREMENT 6: Employees see all shipments
         shipments = Shipment.query.all()
     else:  # CLIENT
-        # Clients see only their own shipments
+        # REQUIREMENT 7: Clients see only their own shipments (sender or receiver)
         client = Client.query.filter_by(user_id=user_id).first()
         if not client:
             return jsonify({"error": "Client profile not found"}), 404
@@ -35,7 +43,11 @@ def get_shipments():
 @shipment_bp.get("/<int:shipment_id>")
 @jwt_required()
 def get_shipment(shipment_id):
-    """Get a specific shipment"""
+    """
+    REQUIREMENT 3e: Get specific shipment details
+    REQUIREMENT 6: Employees can view any shipment
+    REQUIREMENT 7: Clients can only view their own shipments
+    """
     claims = get_jwt()
     user_id = claims.get("sub")
     role = claims.get("role")
@@ -45,6 +57,7 @@ def get_shipment(shipment_id):
         return jsonify({"error": "Shipment not found"}), 404
     
     if role == "CLIENT":
+        # REQUIREMENT 7: Verify client owns the shipment
         client = Client.query.filter_by(user_id=user_id).first()
         if client.id != shipment.sender_id and client.id != shipment.receiver_id:
             return jsonify({"error": "Unauthorized"}), 403
@@ -54,7 +67,10 @@ def get_shipment(shipment_id):
 @shipment_bp.post("")
 @jwt_required()
 def create_shipment():
-    """Create a new shipment - for employees (admin) and clients (sending their own)"""
+    """
+    REQUIREMENT 3e: Create new shipment (CRUD - Create)
+    REQUIREMENT 4: Employees and clients can create shipments
+    """
     claims = get_jwt()
     user_id = claims.get("sub")
     role = claims.get("role")
@@ -85,6 +101,7 @@ def create_shipment():
             return jsonify({"error": "registered_by_employee_id required for employees"}), 400
         registered_by_employee_id = data.get("registered_by_employee_id")
     
+    # REQUIREMENT 4: Create shipment with tracking information
     shipment = Shipment(
         sender_id=data.get("sender_id"),
         receiver_id=data.get("receiver_id"),
@@ -111,7 +128,10 @@ def create_shipment():
 @shipment_bp.put("/<int:shipment_id>")
 @jwt_required()
 def update_shipment(shipment_id):
-    """Update a shipment - only for employees"""
+    """
+    REQUIREMENT 3e: Update shipment details (CRUD - Update)
+    REQUIREMENT 4: Employees can update shipment status and received date
+    """
     claims = get_jwt()
     if claims.get("role") != "EMPLOYEE":
         return jsonify({"error": "Unauthorized"}), 403
@@ -122,8 +142,10 @@ def update_shipment(shipment_id):
     
     data = request.get_json() or {}
     
+    # REQUIREMENT 4: Update delivery status
     if data.get("status"):
         shipment.status = data.get("status")
+    # REQUIREMENT 4: Mark shipment as received with date
     if data.get("received_date") and data.get("status") == "DELIVERED":
         shipment.received_date = datetime.fromisoformat(data.get("received_date"))
     
@@ -141,7 +163,10 @@ def update_shipment(shipment_id):
 @shipment_bp.delete("/<int:shipment_id>")
 @jwt_required()
 def delete_shipment(shipment_id):
-    """Delete a shipment - only for employees"""
+    """
+    REQUIREMENT 3e: Delete shipment (CRUD - Delete)
+    Only employees can delete shipments
+    """
     claims = get_jwt()
     if claims.get("role") != "EMPLOYEE":
         return jsonify({"error": "Unauthorized"}), 403
@@ -158,12 +183,15 @@ def delete_shipment(shipment_id):
         db.session.rollback()
         return jsonify({"error": str(e)}), 400
 
-# REPORTS / QUERIES
+# REQUIREMENT 5: REPORTING AND QUERIES
 
 @shipment_bp.get("/reports/all-shipments")
 @jwt_required()
 def report_all_shipments():
-    """Report: All registered shipments - only for employees"""
+    """
+    REQUIREMENT 5c: Report all registered shipments
+    Only employees can view this report
+    """
     claims = get_jwt()
     if claims.get("role") != "EMPLOYEE":
         return jsonify({"error": "Unauthorized"}), 403
@@ -174,7 +202,10 @@ def report_all_shipments():
 @shipment_bp.get("/reports/by-employee/<int:employee_id>")
 @jwt_required()
 def report_shipments_by_employee(employee_id):
-    """Report: Shipments registered by specific employee - only for employees"""
+    """
+    REQUIREMENT 5d: Report all shipments registered by specific employee
+    Only employees can view this report
+    """
     claims = get_jwt()
     if claims.get("role") != "EMPLOYEE":
         return jsonify({"error": "Unauthorized"}), 403
@@ -185,11 +216,15 @@ def report_shipments_by_employee(employee_id):
 @shipment_bp.get("/reports/undelivered")
 @jwt_required()
 def report_undelivered_shipments():
-    """Report: All shipments sent but not received - only for employees"""
+    """
+    REQUIREMENT 5e: Report all shipments sent but not yet received (undelivered)
+    Only employees can view this report
+    """
     claims = get_jwt()
     if claims.get("role") != "EMPLOYEE":
         return jsonify({"error": "Unauthorized"}), 403
     
+    # REQUIREMENT 5e: Filter by status - not DELIVERED and not CANCELLED
     shipments = Shipment.query.filter(
         and_(Shipment.status != "DELIVERED", Shipment.status != "CANCELLED")
     ).all()
@@ -198,7 +233,10 @@ def report_undelivered_shipments():
 @shipment_bp.get("/reports/by-sender/<int:client_id>")
 @jwt_required()
 def report_shipments_by_sender(client_id):
-    """Report: Shipments sent by specific client - only for employees or the client"""
+    """
+    REQUIREMENT 5f: Report all shipments sent by specific client
+    Employees can view all, clients can only view their own
+    """
     claims = get_jwt()
     user_id = claims.get("sub")
     role = claims.get("role")
@@ -210,13 +248,17 @@ def report_shipments_by_sender(client_id):
     if role != "EMPLOYEE" and client.user_id != user_id:
         return jsonify({"error": "Unauthorized"}), 403
     
+    # REQUIREMENT 5f: Filter by sender (client who sent the shipment)
     shipments = Shipment.query.filter_by(sender_id=client_id).all()
     return jsonify([s.to_dict() for s in shipments]), 200
 
 @shipment_bp.get("/reports/by-receiver/<int:client_id>")
 @jwt_required()
 def report_shipments_by_receiver(client_id):
-    """Report: Shipments received by specific client - only for employees or the client"""
+    """
+    REQUIREMENT 5g: Report all shipments received by specific client
+    Employees can view all, clients can only view their own
+    """
     claims = get_jwt()
     user_id = claims.get("sub")
     role = claims.get("role")
@@ -228,17 +270,23 @@ def report_shipments_by_receiver(client_id):
     if role != "EMPLOYEE" and client.user_id != user_id:
         return jsonify({"error": "Unauthorized"}), 403
     
+    # REQUIREMENT 5g: Filter by receiver (client who received the shipment)
     shipments = Shipment.query.filter_by(receiver_id=client_id).all()
     return jsonify([s.to_dict() for s in shipments]), 200
 
 @shipment_bp.get("/reports/revenue")
 @jwt_required()
 def report_company_revenue():
-    """Report: Total revenue for a specific period - only for employees"""
+    """
+    REQUIREMENT 5h: Report total revenue for company for specified time period
+    Only employees can view this report
+    Calculates revenue from all delivered shipments in the time range
+    """
     claims = get_jwt()
     if claims.get("role") != "EMPLOYEE":
         return jsonify({"error": "Unauthorized"}), 403
     
+    # REQUIREMENT 5h: Filter by date range
     start_date = request.args.get("start_date")
     end_date = request.args.get("end_date")
     
@@ -249,6 +297,7 @@ def report_company_revenue():
         query = query.filter(Shipment.sent_date <= datetime.fromisoformat(end_date))
     
     shipments = query.all()
+    # REQUIREMENT 5h: Calculate total revenue (sum of prices)
     total_revenue = sum(float(s.price) for s in shipments)
     
     return jsonify({

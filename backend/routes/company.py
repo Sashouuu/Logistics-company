@@ -5,10 +5,15 @@ from flask_jwt_extended import jwt_required, get_jwt
 
 company_bp = Blueprint("company", __name__, url_prefix="/api/company")
 
+# REQUIREMENT 3a: Company CRUD operations (Create, Read, Update, Delete)
+
 @company_bp.get("")
 @jwt_required()
 def get_companies():
-    """Get all companies - only for employees"""
+    """
+    REQUIREMENT 3a: Get all companies (Read)
+    Only employees can view companies
+    """
     claims = get_jwt()
     if claims.get("role") != "EMPLOYEE":
         return jsonify({"error": "Unauthorized"}), 403
@@ -19,7 +24,9 @@ def get_companies():
 @company_bp.get("/<int:company_id>")
 @jwt_required()
 def get_company(company_id):
-    """Get a specific company"""
+    """
+    REQUIREMENT 3a: Get specific company details (Read)
+    """
     company = Company.query.get(company_id)
     if not company:
         return jsonify({"error": "Company not found"}), 404
@@ -29,7 +36,10 @@ def get_company(company_id):
 @company_bp.post("")
 @jwt_required()
 def create_company():
-    """Create a new company - only for employees"""
+    """
+    REQUIREMENT 3a: Create new company (CRUD - Create)
+    Only employees can create companies
+    """
     claims = get_jwt()
     if claims.get("role") != "EMPLOYEE":
         return jsonify({"error": "Unauthorized"}), 403
@@ -61,7 +71,10 @@ def create_company():
 @company_bp.put("/<int:company_id>")
 @jwt_required()
 def update_company(company_id):
-    """Update a company - only for employees"""
+    """
+    REQUIREMENT 3a: Update company details (CRUD - Update)
+    Only employees can update companies
+    """
     claims = get_jwt()
     if claims.get("role") != "EMPLOYEE":
         return jsonify({"error": "Unauthorized"}), 403
@@ -88,7 +101,10 @@ def update_company(company_id):
 @company_bp.delete("/<int:company_id>")
 @jwt_required()
 def delete_company(company_id):
-    """Delete a company - only for employees"""
+    """
+    REQUIREMENT 3a: Delete company (CRUD - Delete)
+    Only employees can delete companies
+    """
     claims = get_jwt()
     if claims.get("role") != "EMPLOYEE":
         return jsonify({"error": "Unauthorized"}), 403

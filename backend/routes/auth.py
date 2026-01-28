@@ -7,12 +7,19 @@ from flask_jwt_extended import create_access_token
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/api/auth")
 
+# REQUIREMENT 1: User registration and login system
+# REQUIREMENT 2: Role assignment (CLIENT or EMPLOYEE)
 @auth_bp.post("/register")
 def register():
+    """
+    REQUIREMENT 1: Register new users with email and password
+    REQUIREMENT 2: Assign roles (CLIENT or EMPLOYEE) at registration
+    """
     data = request.get_json() or {}
 
     email = data.get("email")
     password = data.get("password")
+    # REQUIREMENT 2: Role assignment
     role = data.get("role")  # CLIENT или EMPLOYEE
 
     if not email or not password or not role:
@@ -24,6 +31,7 @@ def register():
     if User.query.filter_by(email=email).first():
         return jsonify({"error": "User already exists"}), 400
 
+    # REQUIREMENT 1: Create user with secure password hashing
     user = User(email=email, role=role)
     user.set_password(password)
 
@@ -31,9 +39,9 @@ def register():
         db.session.add(user)
         db.session.flush()
 
-        # Create additional profile based on role
+        # REQUIREMENT 2: Create additional profile based on role
         if role == "CLIENT":
-            # Client registration requires company_name, first_name, last_name, phone, address, city, country
+            # REQUIREMENT 3c: Client data input (company, contact information)
             client = Client(
                 user_id=user.id,
                 company_name=data.get("company_name", ""),
@@ -46,7 +54,7 @@ def register():
             )
             db.session.add(client)
         elif role == "EMPLOYEE":
-            # Employee registration - company_id and office_id are optional for now
+            # REQUIREMENT 3b: Employee data input (company and office assignment)
             company_id = data.get("company_id")
             office_id = data.get("office_id")
             
@@ -78,18 +86,25 @@ def register():
         return jsonify({"error": str(e)}), 400
 
 
+# REQUIREMENT 1: User login system
 @auth_bp.post("/login")
 def login():
+    """
+    REQUIREMENT 1: Login with email and password
+    REQUIREMENT 2: Generate JWT token with user role information
+    """
     data = request.get_json() or {}
 
     email = data.get("email")
     password = data.get("password")
 
+    # REQUIREMENT 1: Authenticate user
     user = User.query.filter_by(email=email).first()
 
     if not user or not user.check_password(password):
         return jsonify({"error": "Invalid credentials"}), 401
 
+    # REQUIREMENT 2: Include role in JWT token for authorization
     token = create_access_token(
         identity=str(user.id),
         additional_claims={"role": user.role}

@@ -6,15 +6,23 @@ from flask_jwt_extended import jwt_required, get_jwt
 
 client_bp = Blueprint("client", __name__, url_prefix="/api/client")
 
+# REQUIREMENT 3c: Client CRUD operations (Create, Read, Update, Delete)
+# REQUIREMENT 5b: Report all clients
+
 @client_bp.get("")
 @jwt_required()
 def get_clients():
-    """Get all clients - employees see all, clients see others (for selecting recipients)"""
+    """
+    REQUIREMENT 3c: Get all clients (Read)
+    REQUIREMENT 5b: Report all clients for employees
+    Employees see all clients, clients see others for selecting recipients
+    """
     claims = get_jwt()
     role = claims.get("role")
     user_id = claims.get("sub")  # This is the user_id as integer or string
     
     if role == "EMPLOYEE":
+        # REQUIREMENT 5b: Employees can view all clients
         clients = Client.query.all()
     else:
         # Clients see all other clients (excluding themselves)
@@ -53,12 +61,13 @@ def get_current_client():
         return jsonify(client.to_dict()), 200
     except (ValueError, TypeError):
         return jsonify({"error": "Invalid user ID"}), 400
-    return jsonify([c.to_dict() for c in clients]), 200
 
 @client_bp.get("/<int:client_id>")
 @jwt_required()
 def get_client(client_id):
-    """Get a specific client"""
+    """
+    REQUIREMENT 3c: Get specific client details (Read)
+    """
     client = Client.query.get(client_id)
     if not client:
         return jsonify({"error": "Client not found"}), 404
@@ -68,7 +77,10 @@ def get_client(client_id):
 @client_bp.post("")
 @jwt_required()
 def create_client():
-    """Create a new client - only for employees"""
+    """
+    REQUIREMENT 3c: Create new client (CRUD - Create)
+    Only employees can create new client records
+    """
     claims = get_jwt()
     if claims.get("role") != "EMPLOYEE":
         return jsonify({"error": "Unauthorized"}), 403
@@ -98,6 +110,77 @@ def create_client():
     
     try:
         db.session.add(client)
+        db.session.commit()
+        return jsonify({"message": "Client created", "client_id": client.id}), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 400
+
+@client_bp.put("/<int:client_id>")
+@jwt_required()
+def update_client(client_id):
+    """
+    REQUIREMENT 3c: Update client details (CRUD - Update)
+    Employees can update any client, clients can update their own profile
+    """
+    claims = get_jwt()
+    role = claims.get("role")
+    user_id = claims.get("sub")
+    
+    client = Client.query.get(client_id)
+    if not client:
+        return jsonify({"error": "Client not found"}), 404
+    
+    # REQUIREMENT 3c: Authorization - clients can only update their own data
+    if role == "CLIENT":
+        try:
+            user_id_int = int(user_id) if user_id else None
+            if client.user_id != user_id_int:
+                return jsonify({"error": "Unauthorized"}), 403
+        except (ValueError, TypeError):
+            return jsonify({"error": "Invalid user ID"}), 400
+    
+    data = request.get_json() or {}
+    
+    client.company_name = data.get("company_name", client.company_name)
+    client.first_name = data.get("first_name", client.first_name)
+    client.last_name = data.get("last_name", client.last_name)
+    client.phone = data.get("phone", client.phone)
+    client.address = data.get("address", client.address)
+    client.city = data.get("city", client.city)
+    client.country = data.get("country", client.country)
+    if "is_active" in data:
+        client.is_active = data.get("is_active")
+    
+    try:
+        db.session.commit()
+        return jsonify({"message": "Client updated"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 400
+
+@client_bp.delete("/<int:client_id>")
+@jwt_required()
+def delete_client(client_id):
+    """
+    REQUIREMENT 3c: Delete client (CRUD - Delete)
+    Only employees can delete clients
+    """
+    claims = get_jwt()
+    if claims.get("role") != "EMPLOYEE":
+        return jsonify({"error": "Unauthorized"}), 403
+    
+    client = Client.query.get(client_id)
+    if not client:
+        return jsonify({"error": "Client not found"}), 404
+    
+    try:
+        db.session.delete(client)
+        db.session.commit()
+        return jsonify({"message": "Client deleted"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 400
         db.session.commit()
         return jsonify({"message": "Client created", "client_id": client.id}), 201
     except Exception as e:
