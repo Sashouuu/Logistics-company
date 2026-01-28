@@ -8,7 +8,7 @@ import pymysql
 
 load_dotenv()
 
-#먼저 базата создаем директно
+#създаваме базата директно
 db_user = os.getenv("DB_USER", "root")
 db_password = os.getenv("DB_PASSWORD", "")
 db_host = os.getenv("DB_HOST", "127.0.0.1")
@@ -29,7 +29,7 @@ try:
     )
     
     with connection.cursor() as cursor:
-        # Создаем базата ако не съществува
+        # Създаваме базата, ако не съществува
         cursor.execute(f"CREATE DATABASE IF NOT EXISTS {db_name}")
         print(f"✅ База данни '{db_name}' създадена")
     

@@ -299,7 +299,7 @@ function showTab(tabId) {
         btn.classList.remove('active');
     });
 
-    // Покажи избранния tab
+    // Покажи избрания tab
     document.getElementById(tabId).classList.add('active');
     event.target.classList.add('active');
 }
