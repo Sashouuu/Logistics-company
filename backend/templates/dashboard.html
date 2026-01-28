@@ -16,7 +16,6 @@
             <li><a href="#" onclick="showSection('shipments')" class="nav-link" id="nav-shipments">Пратки</a></li>
             <li><a href="#" onclick="showSection('register-shipment')" class="nav-link" id="nav-register">Регистрирай пратка</a></li>
             <li><a href="#" onclick="showSection('reports')" class="nav-link" id="nav-reports">Справки</a></li>
-            <li><a href="#" onclick="showSection('management')" class="nav-link" id="nav-management">Управление</a></li>
             <li><a href="#" onclick="logout()" class="nav-link logout-link">Излез</a></li>
         </ul>
     </nav>
@@ -37,11 +36,11 @@
                 <p class="stat-number" id="totalShipments">-</p>
             </div>
             <div class="stat-card">
-                <h3>В очакване</h3>
+                <h3>Изчакващи</h3>
                 <p class="stat-number" id="pendingShipments">-</p>
             </div>
             <div class="stat-card">
-                <h3>В пътя</h3>
+                <h3>Изпратени</h3>
                 <p class="stat-number" id="transitShipments">-</p>
             </div>
             <div class="stat-card">
@@ -56,8 +55,8 @@
         <h2>Пратки</h2>
         <div class="filter-section">
             <button onclick="filterEmployeeShipments('ALL')" class="filter-btn active" id="emp-filter-all">Всички</button>
-            <button onclick="filterEmployeeShipments('PENDING')" class="filter-btn" id="emp-filter-pending">В очакване</button>
-            <button onclick="filterEmployeeShipments('IN_TRANSIT')" class="filter-btn" id="emp-filter-transit">В пътя</button>
+            <button onclick="filterEmployeeShipments('PENDING')" class="filter-btn" id="emp-filter-pending">Изчакващи</button>
+            <button onclick="filterEmployeeShipments('IN_TRANSIT')" class="filter-btn" id="emp-filter-transit">Изпратени</button>
             <button onclick="filterEmployeeShipments('DELIVERED')" class="filter-btn" id="emp-filter-delivered">Доставени</button>
         </div>
         <div id="employeeShipmentsContainer" class="shipments-container">
@@ -154,20 +153,6 @@
         </div>
         <div id="reportContainer"></div>
     </div>
-
-    <!-- Management Section -->
-    <div id="management" class="section">
-        <h2>Управление</h2>
-        <div class="management-tabs">
-            <button onclick="showManagement('companies')" class="mgmt-tab active">Компании</button>
-            <button onclick="showManagement('offices')" class="mgmt-tab">Офиси</button>
-            <button onclick="showManagement('employees')" class="mgmt-tab">Служители</button>
-            <button onclick="showManagement('clients')" class="mgmt-tab">Клиенти</button>
-        </div>
-        <div id="managementContainer"></div>
-    </div>
-
-    <div id="message"></div>
 </div>
 
 <script src="/static/js/dashboard.js"></script>

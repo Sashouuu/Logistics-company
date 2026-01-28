@@ -4,8 +4,8 @@
 
 СЛУЖИТЕЛ (EMPLOYEE):
 =====================
-Email: admin@fastlogistics.com
-Пароля: admin123
+Email: admin@fastlogistics.com / cooladmin@fastlogistics.com
+Паролa: admin123
 Име: Admin User
 Компания: FastLogistics
 Телефон: +359888222222
@@ -16,7 +16,7 @@ Email: admin@fastlogistics.com
 КЛИЕНТ 1:
 ---------
 Email: client1@example.com
-Пароля: client123
+Паролa: client123
 Име: Иван Петров
 Компания: ООО Петров и сина
 Телефон: +359888333333
@@ -27,7 +27,7 @@ Email: client1@example.com
 КЛИЕНТ 2:
 ---------
 Email: client2@example.com
-Пароля: client123
+Паролa: client123
 Име: Мария Йванова
 Компания: АД Йванова Тр.
 Телефон: +359888444444
@@ -38,7 +38,7 @@ Email: client2@example.com
 КЛИЕНТ 3:
 ---------
 Email: client3@example.com
-Пароля: client123
+Паролa: client123
 Име: Георги Димов
 Компания: Трейд Кооперация
 Телефон: +359888555555

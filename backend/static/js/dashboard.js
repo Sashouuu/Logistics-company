@@ -141,12 +141,40 @@ function displayEmployeeShipments() {
                 ` : ''}
             </div>
             <div style="margin-top: 10px;">
-                ${shipment.status !== 'DELIVERED' ? `
+                ${shipment.status === 'PENDING' ? `
+                    <button onclick="markAsInTransit(${shipment.id})" style="padding: 5px 10px; background-color: #2196F3; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right: 8px;">Отбележи като изпратена</button>
+                ` : ''}
+                ${shipment.status === 'IN_TRANSIT' ? `
                     <button onclick="markAsDelivered(${shipment.id})" style="padding: 5px 10px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">Отбележи като доставена</button>
                 ` : ''}
             </div>
         </div>
     `).join('');
+}
+
+async function markAsInTransit(shipmentId) {
+    const token = localStorage.getItem("access_token");
+
+    try {
+        const response = await fetch(`/api/shipment/${shipmentId}`, {
+            method: "PUT",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                status: "IN_TRANSIT"
+            })
+        });
+
+        if (!response.ok) throw new Error("Failed to update shipment");
+
+        alert("Пратката е отбелязана като изпратена!");
+        await loadEmployeeShipments();
+        await loadStats();
+    } catch (error) {
+        alert("Грешка: " + error.message);
+    }
 }
 
 async function markAsDelivered(shipmentId) {
@@ -245,8 +273,8 @@ async function handleShipmentSubmit(e) {
 
 function getStatusText(status) {
     const statusMap = {
-        'PENDING': 'В очакване',
-        'IN_TRANSIT': 'В пътя',
+        'PENDING': 'Изчакваща',
+        'IN_TRANSIT': 'Изпратена',
         'DELIVERED': 'Доставена',
         'CANCELLED': 'Отменена'
     };

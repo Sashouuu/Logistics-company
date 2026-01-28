@@ -214,8 +214,8 @@ function getCardClass(status) {
 
 function getStatusText(status) {
     const statusMap = {
-        'PENDING': 'В очакване',
-        'IN_TRANSIT': 'В пътя',
+        'PENDING': 'Изчакваща',
+        'IN_TRANSIT': 'Изпратена',
         'DELIVERED': 'Доставена',
         'CANCELLED': 'Отменена'
     };

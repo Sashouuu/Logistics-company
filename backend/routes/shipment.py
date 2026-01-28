@@ -5,7 +5,7 @@ from models.client import Client
 from models.employee import Employee
 from flask_jwt_extended import jwt_required, get_jwt
 from datetime import datetime
-from sqlalchemy import and_, or_
+from sqlalchemy import and_, or_, func
 
 shipment_bp = Blueprint("shipment", __name__, url_prefix="/api/shipment")
 
@@ -224,9 +224,11 @@ def report_undelivered_shipments():
     if claims.get("role") != "EMPLOYEE":
         return jsonify({"error": "Unauthorized"}), 403
     
-    # REQUIREMENT 5e: Filter by status - not DELIVERED and not CANCELLED
+    # REQUIREMENT 5e: Sent but not received (exclude cancelled)
     shipments = Shipment.query.filter(
-        and_(Shipment.status != "DELIVERED", Shipment.status != "CANCELLED")
+        Shipment.sent_date.isnot(None),
+        Shipment.received_date.is_(None),
+        Shipment.status != "CANCELLED",
     ).all()
     return jsonify([s.to_dict() for s in shipments]), 200
 
@@ -290,21 +292,25 @@ def report_company_revenue():
     start_date = request.args.get("start_date")
     end_date = request.args.get("end_date")
     
-    query = Shipment.query
+    # Revenue is based on completed (DELIVERED) shipments.
+    query = Shipment.query.filter(Shipment.status == "DELIVERED")
     if start_date:
         query = query.filter(Shipment.sent_date >= datetime.fromisoformat(start_date))
     if end_date:
         query = query.filter(Shipment.sent_date <= datetime.fromisoformat(end_date))
-    
-    shipments = query.all()
-    # REQUIREMENT 5h: Calculate total revenue (sum of prices)
-    total_revenue = sum(float(s.price) for s in shipments)
-    
+
+    shipment_count = query.count()
+    total_revenue = db.session.query(func.coalesce(func.sum(Shipment.price), 0)).filter(
+        Shipment.status == "DELIVERED",
+        *( [Shipment.sent_date >= datetime.fromisoformat(start_date)] if start_date else [] ),
+        *( [Shipment.sent_date <= datetime.fromisoformat(end_date)] if end_date else [] ),
+    ).scalar()
+
     return jsonify({
         "period": {
             "start_date": start_date,
             "end_date": end_date
         },
-        "total_revenue": total_revenue,
-        "shipment_count": len(shipments)
+        "total_revenue": str(total_revenue),
+        "shipment_count": shipment_count
     }), 200
