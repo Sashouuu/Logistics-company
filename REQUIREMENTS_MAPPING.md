@@ -542,7 +542,7 @@ Authorization: Bearer <JWT_TOKEN>
 
 ### Статусни Кодове на Пратка
 - `PENDING` - Чакаща обработка
-- `IN_TRANSIT` - В пътя
+- `IN_TRANSIT` - Изпратена
 - `DELIVERED` - Доставена
 - `CANCELLED` - Отменена
 
