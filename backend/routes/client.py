@@ -30,6 +30,31 @@ def get_clients():
     
     return jsonify([c.to_dict() for c in clients]), 200
 
+@client_bp.get("/me")
+@jwt_required()
+def get_current_client():
+    """Get current logged-in client's profile"""
+    claims = get_jwt()
+    role = claims.get("role")
+    user_id = claims.get("sub")
+    
+    if role != "CLIENT":
+        return jsonify({"error": "Only clients can access this endpoint"}), 403
+    
+    try:
+        user_id_int = int(user_id) if user_id else None
+        if not user_id_int:
+            return jsonify({"error": "Invalid user ID"}), 400
+        
+        client = Client.query.filter_by(user_id=user_id_int).first()
+        if not client:
+            return jsonify({"error": "Client profile not found"}), 404
+        
+        return jsonify(client.to_dict()), 200
+    except (ValueError, TypeError):
+        return jsonify({"error": "Invalid user ID"}), 400
+    return jsonify([c.to_dict() for c in clients]), 200
+
 @client_bp.get("/<int:client_id>")
 @jwt_required()
 def get_client(client_id):

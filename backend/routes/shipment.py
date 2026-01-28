@@ -54,14 +54,14 @@ def get_shipment(shipment_id):
 @shipment_bp.post("")
 @jwt_required()
 def create_shipment():
-    """Create a new shipment - only for employees"""
+    """Create a new shipment - for employees (admin) and clients (sending their own)"""
     claims = get_jwt()
-    if claims.get("role") != "EMPLOYEE":
-        return jsonify({"error": "Unauthorized"}), 403
+    user_id = claims.get("sub")
+    role = claims.get("role")
     
     data = request.get_json() or {}
     
-    required_fields = ["sender_id", "receiver_id", "registered_by_employee_id", "tracking_number", 
+    required_fields = ["sender_id", "receiver_id", "tracking_number", 
                       "weight", "dimensions", "description", "price", "origin_address", "destination_address"]
     if not all(data.get(field) for field in required_fields):
         return jsonify({"error": f"Required fields: {', '.join(required_fields)}"}), 400
@@ -69,10 +69,26 @@ def create_shipment():
     if Shipment.query.filter_by(tracking_number=data.get("tracking_number")).first():
         return jsonify({"error": "Tracking number already exists"}), 400
     
+    # If client, verify they are the sender
+    if role == "CLIENT":
+        client = Client.query.filter_by(user_id=user_id).first()
+        if not client or client.id != int(data.get("sender_id")):
+            return jsonify({"error": "Clients can only send shipments as themselves"}), 403
+        # For clients, find an employee to register the shipment
+        employee = Employee.query.first()
+        if not employee:
+            return jsonify({"error": "No employee available to register shipment"}), 400
+        registered_by_employee_id = employee.id
+    else:
+        # Employees must provide registered_by_employee_id
+        if not data.get("registered_by_employee_id"):
+            return jsonify({"error": "registered_by_employee_id required for employees"}), 400
+        registered_by_employee_id = data.get("registered_by_employee_id")
+    
     shipment = Shipment(
         sender_id=data.get("sender_id"),
         receiver_id=data.get("receiver_id"),
-        registered_by_employee_id=data.get("registered_by_employee_id"),
+        registered_by_employee_id=registered_by_employee_id,
         tracking_number=data.get("tracking_number"),
         weight=data.get("weight"),
         dimensions=data.get("dimensions"),

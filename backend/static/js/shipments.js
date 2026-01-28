@@ -1,11 +1,12 @@
 let allShipments = [];
 let currentFilter = 'ALL';
 let currentClientId = null;
+let currentUserId = null;
 let allClients = [];
 
 async function init() {
     const token = localStorage.getItem("access_token");
-    currentClientId = parseInt(localStorage.getItem("user_id"));
+    currentUserId = parseInt(localStorage.getItem("user_id"));
     const messageDiv = document.getElementById("message");
 
     if (!token) {
@@ -16,6 +17,9 @@ async function init() {
         return;
     }
 
+    // Зареди клиентски профил за получаване на client ID
+    await loadClientProfile();
+    
     // Зареди пратки
     await loadShipments();
     
@@ -24,6 +28,30 @@ async function init() {
     
     // Attach form handler
     document.getElementById("sendShipmentForm").addEventListener("submit", handleSendShipment);
+}
+
+async function loadClientProfile() {
+    const token = localStorage.getItem("access_token");
+    
+    try {
+        const response = await fetch("/api/client/me", {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json"
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to load client profile");
+        }
+
+        const client = await response.json();
+        currentClientId = client.id;
+        console.log("Current client ID:", currentClientId);
+    } catch (error) {
+        console.error("Error loading client profile:", error);
+    }
 }
 
 async function loadShipments() {
