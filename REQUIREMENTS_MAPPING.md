@@ -9,13 +9,13 @@
 ## ИЗИСКВАНЕ 1: Регистриране на потребители и вход в системата
 
 ### Описание
-Потребителите трябва да могат да се регистрират с електронна поща и парола, и да се влизане в системата.
+Потребителите трябва да могат да се регистрират с електронна поща и парола, и да влизат в системата.
 
 ### Местоположение на Код
 
 #### Регистриране на потребител
-- **Файл:** [backend/routes/auth.py](backend/routes/auth.py#L11-L65)
-- **Функция:** `register()` (редове 11-65)
+- **Файл:** [backend/routes/auth.py](backend/routes/auth.py)
+- **Функция:** `register()`
 - **Описание:** 
   - POST endpoint `/api/auth/register`
   - Валидира електронна поща, парола и роля
@@ -24,8 +24,8 @@
   - Създава допълнителен профил (Client или Employee) в зависимост от ролята
 
 #### Вход в системата
-- **Файл:** [backend/routes/auth.py](backend/routes/auth.py#L68-L87)
-- **Функция:** `login()` (редове 68-87)
+- **Файл:** [backend/routes/auth.py](backend/routes/auth.py)
+- **Функция:** `login()`
 - **Описание:**
   - POST endpoint `/api/auth/login`
   - Проверява email и парола с `check_password()`
@@ -33,8 +33,8 @@
   - Връща токен, user_id и role
 
 #### User Модел
-- **Файл:** [backend/models/user.py](backend/models/user.py#L1-L23)
-- **Клас:** `User` (редове 1-23)
+- **Файл:** [backend/models/user.py](backend/models/user.py)
+- **Клас:** `User`
 - **Полета:**
   - `id` - Primary key
   - `email` - Уникален електронен адрес
@@ -43,8 +43,8 @@
   - `created_at` - Дата на създаване
 
 - **Методи:**
-  - `set_password()` (редове 15-17) - Криптиране на парола
-  - `check_password()` (редове 19-21) - Проверка на парола при вход
+  - `set_password()` - Криптиране на парола
+  - `check_password()` - Проверка на парола при вход
 
 ---
 
@@ -56,21 +56,21 @@
 ### Местоположение на Код
 
 #### User Модел - Роля
-- **Файл:** [backend/models/user.py](backend/models/user.py#L13)
-- **Поле:** `role` (ред 13)
+- **Файл:** [backend/models/user.py](backend/models/user.py)
+- **Поле:** `role`
 - **Стойности:** "CLIENT" или "EMPLOYEE"
 
 #### Регистриране с Роля
-- **Файл:** [backend/routes/auth.py](backend/routes/auth.py#L20-L27)
-- **Функция:** `register()` (редове 20-27)
+- **Файл:** [backend/routes/auth.py](backend/routes/auth.py)
+- **Функция:** `register()`
 - **Описание:**
   - Приема роля при регистриране
   - Валидира че роля е CLIENT или EMPLOYEE
   - Създава съответния профил (Client или Employee)
 
 #### JWT Токен със Роля
-- **Файл:** [backend/routes/auth.py](backend/routes/auth.py#L82-L85)
-- **Функция:** `login()` (редове 82-85)
+- **Файл:** [backend/routes/auth.py](backend/routes/auth.py)
+- **Функция:** `login()`
 - **Описание:**
   - Включва роля в JWT токена като `additional_claims={"role": user.role}`
   - Позволява проверка на роля с `get_jwt()` във всеки endpoint
@@ -236,8 +236,8 @@ if claims.get("role") != "EMPLOYEE":
 ### Местоположение на Код
 
 #### Регистриране на Пратка
-- **Файл:** [backend/routes/shipment.py](backend/routes/shipment.py#L56-L122)
-- **Функция:** `create_shipment()` (редове 56-122)
+- **Файл:** [backend/routes/shipment.py](backend/routes/shipment.py)
+- **Функция:** `create_shipment()`
 - **Описание:**
   - POST endpoint `/api/shipment`
   - Служител предоставя:
@@ -248,8 +248,8 @@ if claims.get("role") != "EMPLOYEE":
   - Клиент може да регистрира само своя пратка (системата автоматично присвоява служител)
 
 #### Обновяване на Статус на Пратка
-- **Файл:** [backend/routes/shipment.py](backend/routes/shipment.py#L125-L156)
-- **Функция:** `update_shipment()` (редове 125-156)
+- **Файл:** [backend/routes/shipment.py](backend/routes/shipment.py)
+- **Функция:** `update_shipment()`
 - **Описание:**
   - PUT endpoint `/api/shipment/<id>`
   - Служител може да обновя:
@@ -258,14 +258,14 @@ if claims.get("role") != "EMPLOYEE":
   - Други детайли на пратката
 
 #### Shipment Модел - Връзки
-- **Файл:** [backend/models/shipment.py](backend/models/shipment.py#L22-L25)
+- **Файл:** [backend/models/shipment.py](backend/models/shipment.py)
 - **Отношения:**
   - `sender_id` - Link към Client (който изпраща)
   - `receiver_id` - Link към Client (който получава)
   - `registered_by_employee_id` - Link към Employee (служител, който регистрира)
 
 #### Employee Модел - Регистрирани Пратки
-- **Файл:** [backend/models/employee.py](backend/models/employee.py#L24-L26)
+- **Файл:** [backend/models/employee.py](backend/models/employee.py)
 - **Отношение:** `shipments_registered` - Всички пратки, регистрирани от служител
 
 ---
@@ -275,8 +275,8 @@ if claims.get("role") != "EMPLOYEE":
 ### 5a. Всички служители в компанията
 
 #### Endpoint
-- **Файл:** [backend/routes/employee.py](backend/routes/employee.py#L11-L31)
-- **Функция:** `get_employees()` (редове 11-31)
+- **Файл:** [backend/routes/employee.py](backend/routes/employee.py)
+- **Функция:** `get_employees()`
 - **HTTP:** GET `/api/employee`
 - **Филтър:** `?company_id=<id>` (опционално)
 - **Кой może:** Само служители (EMPLOYEE)
@@ -287,8 +287,8 @@ if claims.get("role") != "EMPLOYEE":
 ### 5b. Всички клиенти на компанията
 
 #### Endpoint
-- **Файл:** [backend/routes/client.py](backend/routes/client.py#L12-L39)
-- **Функция:** `get_clients()` (редове 12-39)
+- **Файл:** [backend/routes/client.py](backend/routes/client.py)
+- **Функция:** `get_clients()`
 - **HTTP:** GET `/api/client`
 - **Кой може:** Служители видят всички клиенти, клиентите видят другите (за избор на получател)
 - **Описание:** Връща всички клиенти
@@ -298,8 +298,8 @@ if claims.get("role") != "EMPLOYEE":
 ### 5c. Всички пратки, които са били регистрирани
 
 #### Endpoint
-- **Файл:** [backend/routes/shipment.py](backend/routes/shipment.py#L191-L202)
-- **Функция:** `report_all_shipments()` (редове 191-202)
+- **Файл:** [backend/routes/shipment.py](backend/routes/shipment.py)
+- **Функция:** `report_all_shipments()`
 - **HTTP:** GET `/api/shipment/reports/all-shipments`
 - **Кой може:** Само служители (EMPLOYEE)
 - **Описание:** Връща всички пратки в системата
@@ -309,8 +309,8 @@ if claims.get("role") != "EMPLOYEE":
 ### 5d. Всички пратки, регистрирани от даден служител
 
 #### Endpoint
-- **Файл:** [backend/routes/shipment.py](backend/routes/shipment.py#L205-L216)
-- **Функция:** `report_shipments_by_employee()` (редове 205-216)
+- **Файл:** [backend/routes/shipment.py](backend/routes/shipment.py)
+- **Функция:** `report_shipments_by_employee()`
 - **HTTP:** GET `/api/shipment/reports/by-employee/<employee_id>`
 - **Кой може:** Само служители (EMPLOYEE)
 - **Параметър:** `employee_id` - ID на служител
@@ -321,8 +321,8 @@ if claims.get("role") != "EMPLOYEE":
 ### 5e. Всички пратки, които са изпратени, но не са получени
 
 #### Endpoint
-- **Файл:** [backend/routes/shipment.py](backend/routes/shipment.py#L219-L234)
-- **Функция:** `report_undelivered_shipments()` (редове 219-234)
+- **Файл:** [backend/routes/shipment.py](backend/routes/shipment.py)
+- **Функция:** `report_undelivered_shipments()`
 - **HTTP:** GET `/api/shipment/reports/undelivered`
 - **Кой може:** Само служители (EMPLOYEE)
 - **Описание:** 
@@ -334,8 +334,8 @@ if claims.get("role") != "EMPLOYEE":
 ### 5f. Всички пратки, изпратени от даден клиент
 
 #### Endpoint
-- **Файл:** [backend/routes/shipment.py](backend/routes/shipment.py#L237-L258)
-- **Функция:** `report_shipments_by_sender()` (редове 237-258)
+- **Файл:** [backend/routes/shipment.py](backend/routes/shipment.py)
+- **Функция:** `report_shipments_by_sender()`
 - **HTTP:** GET `/api/shipment/reports/by-sender/<client_id>`
 - **Кой може:** Служители видят всички, клиенти видят само своите
 - **Параметър:** `client_id` - ID на клиент
@@ -346,8 +346,8 @@ if claims.get("role") != "EMPLOYEE":
 ### 5g. Всички пратки, получени от даден клиент
 
 #### Endpoint
-- **Файл:** [backend/routes/shipment.py](backend/routes/shipment.py#L261-L282)
-- **Функция:** `report_shipments_by_receiver()` (редове 261-282)
+- **Файл:** [backend/routes/shipment.py](backend/routes/shipment.py)
+- **Функция:** `report_shipments_by_receiver()`
 - **HTTP:** GET `/api/shipment/reports/by-receiver/<client_id>`
 - **Кой може:** Служители видят всички, клиенти видят само своите
 - **Параметър:** `client_id` - ID на клиент
@@ -358,8 +358,8 @@ if claims.get("role") != "EMPLOYEE":
 ### 5h. Всички приходи за определен период
 
 #### Endpoint
-- **Файл:** [backend/routes/shipment.py](backend/routes/shipment.py#L285-L312)
-- **Функция:** `report_company_revenue()` (редове 285-312)
+- **Файл:** [backend/routes/shipment.py](backend/routes/shipment.py)
+- **Функция:** `report_company_revenue()`
 - **HTTP:** GET `/api/shipment/reports/revenue`
 - **Кой може:** Само служители (EMPLOYEE)
 - **Параметри:** 
@@ -380,10 +380,10 @@ if claims.get("role") != "EMPLOYEE":
 ### Местоположение на Код
 
 #### Get All Shipments - Employee View
-- **Файл:** [backend/routes/shipment.py](backend/routes/shipment.py#L18-L45)
-- **Функция:** `get_shipments()` (редове 18-45)
+- **Файл:** [backend/routes/shipment.py](backend/routes/shipment.py)
+- **Функция:** `get_shipments()`
 - **HTTP:** GET `/api/shipment`
-- **Логика (редове 25-27):**
+- **Логика:**
 ```python
 if role == "EMPLOYEE":
     # REQUIREMENT 6: Employees see all shipments
@@ -400,10 +400,10 @@ if role == "EMPLOYEE":
 ### Местоположение на Код
 
 #### Get All Shipments - Client View
-- **Файл:** [backend/routes/shipment.py](backend/routes/shipment.py#L29-L40)
-- **Функция:** `get_shipments()` (редове 29-40)
+- **Файл:** [backend/routes/shipment.py](backend/routes/shipment.py)
+- **Функция:** `get_shipments()`
 - **HTTP:** GET `/api/shipment`
-- **Логика (редове 30-40):**
+- **Логика:**
 ```python
 else:  # CLIENT
     # REQUIREMENT 7: Clients see only their own shipments (sent or received)
@@ -414,9 +414,9 @@ else:  # CLIENT
 ```
 
 #### Get Single Shipment - Authorization Check
-- **Файл:** [backend/routes/shipment.py](backend/routes/shipment.py#L48-L68)
-- **Функция:** `get_shipment()` (редове 48-68)
-- **Логика (редове 64-66):**
+- **Файл:** [backend/routes/shipment.py](backend/routes/shipment.py)
+- **Функция:** `get_shipment()`
+- **Логика:**
 ```python
 if role == "CLIENT":
     # REQUIREMENT 7: Verify client owns the shipment
@@ -425,7 +425,7 @@ if role == "CLIENT":
 ```
 
 #### Client Модел - Отношения
-- **Файл:** [backend/models/client.py](backend/models/client.py#L26-L29)
+- **Файл:** [backend/models/client.py](backend/models/client.py)
 - **Отношения:**
   - `shipments_sent` - Всички пратки, които е изпратил
   - `shipments_received` - Всички пратки, които е получил
