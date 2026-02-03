@@ -12,13 +12,13 @@ async function initDashboard() {
         return;
     }
 
-    // Покажи информация на потребителя
+    // Show info about logged in user
     document.getElementById("userInfo").innerHTML = `<span>👤 Служител</span>`;
 
-    // Зареди клиентите за формата
+    // Load clients for shipment registration
     await loadClients();
     
-    // Зареди начални данни
+    // Load stats and shipments
     await loadStats();
     await loadEmployeeShipments();
 
@@ -38,12 +38,12 @@ async function loadClients() {
 
         allClients = await response.json();
         
-        // Попълни селектите
+        // Populate selects
         const senderSelect = document.getElementById("sender_id");
         const receiverSelect = document.getElementById("receiver_id");
         
-        senderSelect.innerHTML = '<option value="">Избери клиент (изпращач)</option>';
-        receiverSelect.innerHTML = '<option value="">Избери клиент (получател)</option>';
+        senderSelect.innerHTML = '<option value="">Select client (sender)</option>';
+        receiverSelect.innerHTML = '<option value="">Select client (receiver)</option>';
         
         allClients.forEach(client => {
             const option = `<option value="${client.id}">${client.first_name} ${client.last_name} (${client.company_name})</option>`;
@@ -220,7 +220,7 @@ async function handleShipmentSubmit(e) {
     
     const trackingNumber = document.getElementById("tracking_number").value;
     
-    // Проверка дали вече съществува
+    // Check for duplicate tracking number
     const existingShipment = allEmployeeShipments.find(s => s.tracking_number === trackingNumber);
     if (existingShipment) {
         formMessage.innerHTML = '<p class="error">Пратка с този номер вече съществува!</p>';
@@ -230,7 +230,7 @@ async function handleShipmentSubmit(e) {
     const body = {
         sender_id: parseInt(document.getElementById("sender_id").value),
         receiver_id: parseInt(document.getElementById("receiver_id").value),
-        registered_by_employee_id: currentEmployeeId || 1, // TODO: Get actual employee ID
+        registered_by_employee_id: currentEmployeeId || 1,
         tracking_number: trackingNumber,
         weight: parseFloat(document.getElementById("weight").value),
         dimensions: document.getElementById("dimensions").value,
@@ -427,17 +427,17 @@ async function showReport(reportType) {
 }
 
 function showSection(sectionId) {
-    // Скрий всички секции
+    // Hide all sections
     document.querySelectorAll('.section').forEach(section => {
         section.classList.remove('active');
     });
 
-    // Скрий всички nav links
+    // Hide all nav links
     document.querySelectorAll('.nav-link').forEach(link => {
         link.classList.remove('active');
     });
 
-    // Покажи избраната секция
+    // Highlight selected section and nav link
     document.getElementById(sectionId).classList.add('active');
     document.getElementById(`nav-${sectionId}`).classList.add('active');
 }

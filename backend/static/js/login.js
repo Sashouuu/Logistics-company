@@ -24,14 +24,14 @@ async function login() {
             return;
         }
 
-        // Запази токена и информацията за потребителя
+        // Save tokens and user info in localStorage
         localStorage.setItem("access_token", data.access_token);
         localStorage.setItem("user_id", data.user_id);
         localStorage.setItem("role", data.role);
 
         messageDiv.innerHTML = '<p class="success">Успешно влизане! Пренасочване...</p>';
         
-        // Пренасочи въз основа на роля
+        // Redirect based on role after a short delay
         setTimeout(() => {
             if (data.role === "EMPLOYEE") {
                 window.location.href = "/dashboard.html";
@@ -44,7 +44,7 @@ async function login() {
     }
 }
 
-// Позволи Enter да активира влизането
+// Allow login on Enter key press
 document.addEventListener('DOMContentLoaded', function() {
     document.getElementById("password").addEventListener("keypress", function(event) {
         if (event.key === "Enter") {

@@ -78,7 +78,7 @@ async function register() {
     }
 }
 
-// При зареждане на страницата
+// When the page loads, set up the initial field visibility
 window.onload = function() {
     toggleFields();
 };

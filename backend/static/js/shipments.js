@@ -17,13 +17,13 @@ async function init() {
         return;
     }
 
-    // Зареди клиентски профил за получаване на client ID
+    // Load current client profile
     await loadClientProfile();
     
-    // Зареди пратки
+    // Load shipments
     await loadShipments();
     
-    // Зареди клиентите за формата за изпращане
+    // Load clients for the send shipment form
     await loadClientsForForm();
     
     // Attach form handler
@@ -107,7 +107,7 @@ async function loadClientsForForm() {
                 const errorData = JSON.parse(errorText);
                 errorMsg = errorData.error || errorData.message || errorText;
             } catch (e) {
-                // Если не JSON, используем текст
+                // If parsing fails, keep original text
             }
             throw new Error(`Failed to load clients: ${response.status} - ${errorMsg}`);
         }
@@ -115,7 +115,7 @@ async function loadClientsForForm() {
         allClients = await response.json();
         console.log("Loaded clients:", allClients);
         
-        // Попълни селекта за получатели
+        // Enable receiver select and populate options
         const receiverSelect = document.getElementById("receiver_id");
         receiverSelect.innerHTML = '<option value="">Избери получател</option>';
         
@@ -239,13 +239,13 @@ async function handleSendShipment(e) {
     const token = localStorage.getItem("access_token");
     const formMessage = document.getElementById("sendFormMessage");
     
-    // Генерирай номер за проследяване
+    // Generate tracking number
     const trackingNumber = `CLN-${Date.now()}`;
     
     const body = {
         sender_id: currentClientId,
         receiver_id: parseInt(document.getElementById("receiver_id").value),
-        registered_by_employee_id: 1, // Служител който регистрира (по подразумевание first employee)
+        registered_by_employee_id: 1, // Employee who registers (default first employee)
         tracking_number: trackingNumber,
         weight: parseFloat(document.getElementById("send_weight").value),
         dimensions: document.getElementById("send_dimensions").value,
@@ -289,17 +289,17 @@ async function handleSendShipment(e) {
 }
 
 function showTab(tabId) {
-    // Скрий всички tab-ове
+    // Hide all tabs
     document.querySelectorAll('.tab-content').forEach(tab => {
         tab.classList.remove('active');
     });
 
-    // Скрий всички tab buttons
+    // Hide all tab buttons
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.classList.remove('active');
     });
 
-    // Покажи избрания tab
+    // Show selected tab
     document.getElementById(tabId).classList.add('active');
     event.target.classList.add('active');
 }
@@ -311,7 +311,7 @@ function logout() {
     window.location.href = "/login.html";
 }
 
-// Зареди при отваряне на страницата
+// Load on page load
 window.onload = function() {
     init();
 };
