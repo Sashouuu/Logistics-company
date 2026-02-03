@@ -2,20 +2,20 @@ from extensions import db
 from datetime import datetime
 from decimal import Decimal
 
-# REQUIREMENT 3e: Shipment data management (CRUD operations)
-# REQUIREMENT 4: Employees register sent and received shipments
-# REQUIREMENT 5a-h: Shipment tracking and reporting for various queries
-# REQUIREMENT 6: Employees can see all shipments
-# REQUIREMENT 7: Clients can see their shipments (sent or received)
+# Shipment data management (CRUD operations)
+# Employees register sent and received shipments
+# Shipment tracking and reporting for various queries
+# Employees can see all shipments
+# Clients can see their shipments (sent or received)
 class Shipment(db.Model):
     __tablename__ = "shipments"
 
     id = db.Column(db.Integer, primary_key=True)
-    # REQUIREMENT 4: Track sender (client)
+    # Track sender (client)
     sender_id = db.Column(db.Integer, db.ForeignKey("clients.id"), nullable=False)
-    # REQUIREMENT 4: Track receiver (client)
+    # Track receiver (client)
     receiver_id = db.Column(db.Integer, db.ForeignKey("clients.id"), nullable=False)
-    # REQUIREMENT 4: Track which employee registered the shipment
+    # Track which employee registered the shipment
     registered_by_employee_id = db.Column(db.Integer, db.ForeignKey("employees.id"), nullable=False)
     
     # Shipment details
@@ -23,17 +23,17 @@ class Shipment(db.Model):
     weight = db.Column(db.Float, nullable=False)  # kg
     dimensions = db.Column(db.String(100), nullable=False)  # e.g., "30x40x50"
     description = db.Column(db.Text, nullable=False)
-    # REQUIREMENT 5h: Track price for revenue calculation
+    # Track price for revenue calculation
     price = db.Column(db.Numeric(10, 2), nullable=False)
     
     # Dates
-    # REQUIREMENT 5e: Track sent date for undelivered shipments
+    # Track sent date for undelivered shipments
     sent_date = db.Column(db.DateTime, nullable=False)
-    # REQUIREMENT 5e: Track received date for delivery status
+    # Track received date for delivery status
     received_date = db.Column(db.DateTime, nullable=True)
     
     # Status: PENDING, IN_TRANSIT, DELIVERED, CANCELLED
-    # REQUIREMENT 5e: Status for tracking undelivered shipments
+    # Status for tracking undelivered shipments
     status = db.Column(db.String(20), default="PENDING", nullable=False)
     
     # Origin and destination

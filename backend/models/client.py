@@ -1,8 +1,8 @@
 from extensions import db
 from datetime import datetime
 
-# REQUIREMENT 2: Client role with company and contact information
-# REQUIREMENT 3c: Client data management (CRUD operations)
+# Client role with company and contact information
+# Client data management (CRUD operations)
 class Client(db.Model):
     __tablename__ = "clients"
 
@@ -21,9 +21,9 @@ class Client(db.Model):
 
     # Relations
     user = db.relationship("User", backref="client_profile")
-    # REQUIREMENT 4: Clients can send shipments
+    # Clients can send shipments
     shipments_sent = db.relationship("Shipment", backref="sender", foreign_keys="Shipment.sender_id")
-    # REQUIREMENT 7: Clients can receive shipments and view them
+    # Clients can receive shipments and view them
     shipments_received = db.relationship("Shipment", backref="receiver", foreign_keys="Shipment.receiver_id")
 
     def to_dict(self):

@@ -9,27 +9,27 @@ from sqlalchemy import and_, or_, func
 
 shipment_bp = Blueprint("shipment", __name__, url_prefix="/api/shipment")
 
-# REQUIREMENT 3e: Shipment CRUD operations (Create, Read, Update, Delete)
-# REQUIREMENT 4: Employees register shipments (sent and received)
-# REQUIREMENT 6: Employees see all shipments
-# REQUIREMENT 7: Clients see their own shipments (sent or received)
+# Shipment CRUD operations (Create, Read, Update, Delete)
+# Employees register shipments (sent and received)
+# Employees see all shipments
+# Clients see their own shipments (sent or received)
 
 @shipment_bp.get("")
 @jwt_required()
 def get_shipments():
     """
-    REQUIREMENT 6: Employees can view all shipments
-    REQUIREMENT 7: Clients can only view their own shipments (sent or received)
+    Employees can view all shipments
+    Clients can only view their own shipments (sent or received)
     """
     claims = get_jwt()
     user_id = claims.get("sub")
     role = claims.get("role")
     
     if role == "EMPLOYEE":
-        # REQUIREMENT 6: Employees see all shipments
+        # Employees see all shipments
         shipments = Shipment.query.all()
     else:  # CLIENT
-        # REQUIREMENT 7: Clients see only their own shipments (sender or receiver)
+        # Clients see only their own shipments (sender or receiver)
         client = Client.query.filter_by(user_id=user_id).first()
         if not client:
             return jsonify({"error": "Client profile not found"}), 404
@@ -44,9 +44,9 @@ def get_shipments():
 @jwt_required()
 def get_shipment(shipment_id):
     """
-    REQUIREMENT 3e: Get specific shipment details
-    REQUIREMENT 6: Employees can view any shipment
-    REQUIREMENT 7: Clients can only view their own shipments
+    Get specific shipment details (Read)
+    Employees can view any shipment
+    Clients can only view their own shipments
     """
     claims = get_jwt()
     user_id = claims.get("sub")
@@ -57,7 +57,7 @@ def get_shipment(shipment_id):
         return jsonify({"error": "Shipment not found"}), 404
     
     if role == "CLIENT":
-        # REQUIREMENT 7: Verify client owns the shipment
+        # Clients can only view their own shipments
         client = Client.query.filter_by(user_id=user_id).first()
         if client.id != shipment.sender_id and client.id != shipment.receiver_id:
             return jsonify({"error": "Unauthorized"}), 403
@@ -68,8 +68,8 @@ def get_shipment(shipment_id):
 @jwt_required()
 def create_shipment():
     """
-    REQUIREMENT 3e: Create new shipment (CRUD - Create)
-    REQUIREMENT 4: Employees and clients can create shipments
+    Create new shipment (CRUD - Create)
+    Employees and clients can create shipments
     """
     claims = get_jwt()
     user_id = claims.get("sub")
@@ -101,7 +101,7 @@ def create_shipment():
             return jsonify({"error": "registered_by_employee_id required for employees"}), 400
         registered_by_employee_id = data.get("registered_by_employee_id")
     
-    # REQUIREMENT 4: Create shipment with tracking information
+    # Create shipment with tracking information
     shipment = Shipment(
         sender_id=data.get("sender_id"),
         receiver_id=data.get("receiver_id"),
@@ -129,8 +129,8 @@ def create_shipment():
 @jwt_required()
 def update_shipment(shipment_id):
     """
-    REQUIREMENT 3e: Update shipment details (CRUD - Update)
-    REQUIREMENT 4: Employees can update shipment status and received date
+    Update shipment details (CRUD - Update)
+    Employees can update shipment status and received date
     """
     claims = get_jwt()
     if claims.get("role") != "EMPLOYEE":
@@ -142,10 +142,10 @@ def update_shipment(shipment_id):
     
     data = request.get_json() or {}
     
-    # REQUIREMENT 4: Update delivery status
+    # Update delivery status
     if data.get("status"):
         shipment.status = data.get("status")
-    # REQUIREMENT 4: Mark shipment as received with date
+    # Mark shipment as received with date
     if data.get("received_date") and data.get("status") == "DELIVERED":
         shipment.received_date = datetime.fromisoformat(data.get("received_date"))
     
@@ -164,7 +164,7 @@ def update_shipment(shipment_id):
 @jwt_required()
 def delete_shipment(shipment_id):
     """
-    REQUIREMENT 3e: Delete shipment (CRUD - Delete)
+    Delete shipment (CRUD - Delete)
     Only employees can delete shipments
     """
     claims = get_jwt()
@@ -183,13 +183,13 @@ def delete_shipment(shipment_id):
         db.session.rollback()
         return jsonify({"error": str(e)}), 400
 
-# REQUIREMENT 5: REPORTING AND QUERIES
+# REPORTING AND QUERIES
 
 @shipment_bp.get("/reports/all-shipments")
 @jwt_required()
 def report_all_shipments():
     """
-    REQUIREMENT 5c: Report all registered shipments
+    Report all registered shipments
     Only employees can view this report
     """
     claims = get_jwt()
@@ -203,7 +203,7 @@ def report_all_shipments():
 @jwt_required()
 def report_shipments_by_employee(employee_id):
     """
-    REQUIREMENT 5d: Report all shipments registered by specific employee
+    Report all shipments registered by specific employee
     Only employees can view this report
     """
     claims = get_jwt()
@@ -217,14 +217,14 @@ def report_shipments_by_employee(employee_id):
 @jwt_required()
 def report_undelivered_shipments():
     """
-    REQUIREMENT 5e: Report all shipments sent but not yet received (undelivered)
+    Report all shipments sent but not yet received (undelivered)
     Only employees can view this report
     """
     claims = get_jwt()
     if claims.get("role") != "EMPLOYEE":
         return jsonify({"error": "Unauthorized"}), 403
     
-    # REQUIREMENT 5e: Sent but not received (exclude cancelled)
+    # Sent but not received (exclude cancelled)
     shipments = Shipment.query.filter(
         Shipment.sent_date.isnot(None),
         Shipment.received_date.is_(None),
@@ -236,7 +236,7 @@ def report_undelivered_shipments():
 @jwt_required()
 def report_shipments_by_sender(client_id):
     """
-    REQUIREMENT 5f: Report all shipments sent by specific client
+    Report all shipments sent by specific client
     Employees can view all, clients can only view their own
     """
     claims = get_jwt()
@@ -250,7 +250,7 @@ def report_shipments_by_sender(client_id):
     if role != "EMPLOYEE" and client.user_id != user_id:
         return jsonify({"error": "Unauthorized"}), 403
     
-    # REQUIREMENT 5f: Filter by sender (client who sent the shipment)
+    # Filter by sender (client who sent the shipment)
     shipments = Shipment.query.filter_by(sender_id=client_id).all()
     return jsonify([s.to_dict() for s in shipments]), 200
 
@@ -258,7 +258,7 @@ def report_shipments_by_sender(client_id):
 @jwt_required()
 def report_shipments_by_receiver(client_id):
     """
-    REQUIREMENT 5g: Report all shipments received by specific client
+    Report all shipments received by specific client
     Employees can view all, clients can only view their own
     """
     claims = get_jwt()
@@ -272,7 +272,7 @@ def report_shipments_by_receiver(client_id):
     if role != "EMPLOYEE" and client.user_id != user_id:
         return jsonify({"error": "Unauthorized"}), 403
     
-    # REQUIREMENT 5g: Filter by receiver (client who received the shipment)
+    # Filter by receiver (client who received the shipment)
     shipments = Shipment.query.filter_by(receiver_id=client_id).all()
     return jsonify([s.to_dict() for s in shipments]), 200
 
@@ -280,7 +280,7 @@ def report_shipments_by_receiver(client_id):
 @jwt_required()
 def report_company_revenue():
     """
-    REQUIREMENT 5h: Report total revenue for company for specified time period
+    Report total revenue for company for specified time period
     Only employees can view this report
     Calculates revenue from all delivered shipments in the time range
     """
@@ -288,7 +288,7 @@ def report_company_revenue():
     if claims.get("role") != "EMPLOYEE":
         return jsonify({"error": "Unauthorized"}), 403
     
-    # REQUIREMENT 5h: Filter by date range
+    # Filter by date range
     start_date = request.args.get("start_date")
     end_date = request.args.get("end_date")
     

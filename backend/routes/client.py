@@ -6,15 +6,15 @@ from flask_jwt_extended import jwt_required, get_jwt
 
 client_bp = Blueprint("client", __name__, url_prefix="/api/client")
 
-# REQUIREMENT 3c: Client CRUD operations (Create, Read, Update, Delete)
-# REQUIREMENT 5b: Report all clients
+# Client CRUD operations (Create, Read, Update, Delete)
+# Report all clients
 
 @client_bp.get("")
 @jwt_required()
 def get_clients():
     """
-    REQUIREMENT 3c: Get all clients (Read)
-    REQUIREMENT 5b: Report all clients for employees
+    Get all clients (Read)
+    Report all clients for employees
     Employees see all clients, clients see others for selecting recipients
     """
     claims = get_jwt()
@@ -22,7 +22,7 @@ def get_clients():
     user_id = claims.get("sub")  # This is the user_id as integer or string
     
     if role == "EMPLOYEE":
-        # REQUIREMENT 5b: Employees can view all clients
+        # Employees can view all clients
         clients = Client.query.all()
     else:
         # Clients see all other clients (excluding themselves)
@@ -66,7 +66,7 @@ def get_current_client():
 @jwt_required()
 def get_client(client_id):
     """
-    REQUIREMENT 3c: Get specific client details (Read)
+    Get specific client details (Read)
     """
     client = Client.query.get(client_id)
     if not client:
@@ -78,7 +78,7 @@ def get_client(client_id):
 @jwt_required()
 def create_client():
     """
-    REQUIREMENT 3c: Create new client (CRUD - Create)
+    Create new client (CRUD - Create)
     Only employees can create new client records
     """
     claims = get_jwt()
@@ -120,7 +120,7 @@ def create_client():
 @jwt_required()
 def update_client(client_id):
     """
-    REQUIREMENT 3c: Update client details (CRUD - Update)
+    Update client details (CRUD - Update)
     Employees can update any client, clients can update their own profile
     """
     claims = get_jwt()
@@ -131,7 +131,7 @@ def update_client(client_id):
     if not client:
         return jsonify({"error": "Client not found"}), 404
     
-    # REQUIREMENT 3c: Authorization - clients can only update their own data
+    # Authorization - clients can only update their own data
     if role == "CLIENT":
         try:
             user_id_int = int(user_id) if user_id else None
@@ -163,7 +163,7 @@ def update_client(client_id):
 @jwt_required()
 def delete_client(client_id):
     """
-    REQUIREMENT 3c: Delete client (CRUD - Delete)
+    Delete client (CRUD - Delete)
     Only employees can delete clients
     """
     claims = get_jwt()

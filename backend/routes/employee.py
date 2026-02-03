@@ -6,15 +6,15 @@ from flask_jwt_extended import jwt_required, get_jwt
 
 employee_bp = Blueprint("employee", __name__, url_prefix="/api/employee")
 
-# REQUIREMENT 3b: Employee CRUD operations (Create, Read, Update, Delete)
-# REQUIREMENT 5a: Report all employees
+# Employee CRUD operations (Create, Read, Update, Delete)
+# Report all employees
 
 @employee_bp.get("")
 @jwt_required()
 def get_employees():
     """
-    REQUIREMENT 3b: Get all employees (Read)
-    REQUIREMENT 5a: Report all employees in the company
+    Get all employees (Read)
+    Report all employees in the company
     Only employees can view this list
     """
     claims = get_jwt()
@@ -23,7 +23,7 @@ def get_employees():
     
     company_id = request.args.get("company_id")
     if company_id:
-        # REQUIREMENT 5a: Filter by company
+        # Filter by company
         employees = Employee.query.filter_by(company_id=company_id).all()
     else:
         employees = Employee.query.all()
@@ -34,7 +34,7 @@ def get_employees():
 @jwt_required()
 def get_employee(employee_id):
     """
-    REQUIREMENT 3b: Get specific employee details (Read)
+    Get specific employee details (Read)
     """
     employee = Employee.query.get(employee_id)
     if not employee:
@@ -46,7 +46,7 @@ def get_employee(employee_id):
 @jwt_required()
 def create_employee():
     """
-    REQUIREMENT 3b: Create new employee (CRUD - Create)
+    Create new employee (CRUD - Create)
     Only employees can create new employee records
     """
     claims = get_jwt()
@@ -86,7 +86,7 @@ def create_employee():
 @jwt_required()
 def update_employee(employee_id):
     """
-    REQUIREMENT 3b: Update employee details (CRUD - Update)
+    Update employee details (CRUD - Update)
     Only employees can update employee records
     """
     claims = get_jwt()
@@ -117,7 +117,7 @@ def update_employee(employee_id):
 @jwt_required()
 def delete_employee(employee_id):
     """
-    REQUIREMENT 3b: Delete employee (CRUD - Delete)
+    Delete employee (CRUD - Delete)
     Only employees can delete employee records
     """
     claims = get_jwt()

@@ -1,8 +1,8 @@
 from extensions import db
 from datetime import datetime
 
-# REQUIREMENT 2: Employee role with company and office assignment
-# REQUIREMENT 3e: Employee data management (CRUD operations)
+# Employee role with company and office assignment
+# Employee data management (CRUD operations)
 class Employee(db.Model):
     __tablename__ = "employees"
 
@@ -20,7 +20,7 @@ class Employee(db.Model):
 
     # Relations
     user = db.relationship("User", backref="employee_profile")
-    # REQUIREMENT 4: Employees register shipments
+    #  Employees register shipments
     shipments_registered = db.relationship("Shipment", backref="registered_by_employee", foreign_keys="Shipment.registered_by_employee_id")
 
     def to_dict(self):

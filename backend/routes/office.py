@@ -5,13 +5,13 @@ from flask_jwt_extended import jwt_required, get_jwt
 
 office_bp = Blueprint("office", __name__, url_prefix="/api/office")
 
-# REQUIREMENT 3d: Office CRUD operations (Create, Read, Update, Delete)
+# Office CRUD operations (Create, Read, Update, Delete)
 
 @office_bp.get("")
 @jwt_required()
 def get_offices():
     """
-    REQUIREMENT 3d: Get all offices (Read)
+    Get all offices (Read)
     Only employees can view offices
     """
     claims = get_jwt()
@@ -31,7 +31,7 @@ def get_offices():
 @jwt_required()
 def get_office(office_id):
     """
-    REQUIREMENT 3d: Get specific office details (Read)
+    Get specific office details (Read)
     """
     office = Office.query.get(office_id)
     if not office:
@@ -43,7 +43,7 @@ def get_office(office_id):
 @jwt_required()
 def create_office():
     """
-    REQUIREMENT 3d: Create new office (CRUD - Create)
+    Create new office (CRUD - Create)
     Only employees can create offices
     """
     claims = get_jwt()
@@ -78,7 +78,7 @@ def create_office():
 @jwt_required()
 def update_office(office_id):
     """
-    REQUIREMENT 3d: Update office details (CRUD - Update)
+    Update office details (CRUD - Update)
     Only employees can update offices
     """
     claims = get_jwt()
@@ -109,7 +109,7 @@ def update_office(office_id):
 @jwt_required()
 def delete_office(office_id):
     """
-    REQUIREMENT 3d: Delete office (CRUD - Delete)
+    Delete office (CRUD - Delete)
     Only employees can delete offices
     """
     claims = get_jwt()

@@ -5,13 +5,13 @@ from flask_jwt_extended import jwt_required, get_jwt
 
 company_bp = Blueprint("company", __name__, url_prefix="/api/company")
 
-# REQUIREMENT 3a: Company CRUD operations (Create, Read, Update, Delete)
+# Company CRUD operations (Create, Read, Update, Delete)
 
 @company_bp.get("")
 @jwt_required()
 def get_companies():
     """
-    REQUIREMENT 3a: Get all companies (Read)
+    Get all companies (Read)
     Only employees can view companies
     """
     claims = get_jwt()
@@ -25,7 +25,7 @@ def get_companies():
 @jwt_required()
 def get_company(company_id):
     """
-    REQUIREMENT 3a: Get specific company details (Read)
+    Get specific company details (Read)
     """
     company = Company.query.get(company_id)
     if not company:
@@ -37,7 +37,7 @@ def get_company(company_id):
 @jwt_required()
 def create_company():
     """
-    REQUIREMENT 3a: Create new company (CRUD - Create)
+    Create new company (CRUD - Create)
     Only employees can create companies
     """
     claims = get_jwt()
@@ -72,7 +72,7 @@ def create_company():
 @jwt_required()
 def update_company(company_id):
     """
-    REQUIREMENT 3a: Update company details (CRUD - Update)
+    Update company details (CRUD - Update)
     Only employees can update companies
     """
     claims = get_jwt()
@@ -102,7 +102,7 @@ def update_company(company_id):
 @jwt_required()
 def delete_company(company_id):
     """
-    REQUIREMENT 3a: Delete company (CRUD - Delete)
+    Delete company (CRUD - Delete)
     Only employees can delete companies
     """
     claims = get_jwt()
