@@ -10,13 +10,13 @@ from datetime import datetime
 
 def seed_data():
     with app.app_context():
-        # Очисти старите данни - АКТИВИРАНО за пресъздаване
+        # Clear old data - ENABLED for recreation
         db.drop_all()
         db.create_all()
         
-        print("Създавам начални данни...")
+        print("Creating seed data...")
         
-        # 1. Създай компанията
+        # 1. Create company
         company = Company(
             name="FastLogistics",
             registration_number="BG12345678",
@@ -27,7 +27,7 @@ def seed_data():
         db.session.add(company)
         db.session.flush()
         
-        # 2. Създай офис
+        # 2. Create office
         office = Office(
             name="Sofia Office",
             company_id=company.id,
@@ -40,7 +40,7 @@ def seed_data():
         db.session.add(office)
         db.session.flush()
         
-        # 3. Създай служител (admin)
+        # 3. Create employee (admin)
         admin_user = User(
             email="admin@fastlogistics.com",
             role="EMPLOYEE"
@@ -60,7 +60,7 @@ def seed_data():
         db.session.add(admin_employee)
         db.session.flush()
         
-        # 4. Създай тестови клиенти
+        # 4. Create test clients
         clients_data = [
             {
                 "email": "client1@example.com",
