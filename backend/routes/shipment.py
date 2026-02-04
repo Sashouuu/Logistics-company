@@ -6,8 +6,42 @@ from models.employee import Employee
 from flask_jwt_extended import jwt_required, get_jwt
 from datetime import datetime
 from sqlalchemy import and_, or_, func
+from decimal import Decimal, InvalidOperation
 
 shipment_bp = Blueprint("shipment", __name__, url_prefix="/api/shipment")
+
+
+def _missing_required_fields(data, required_fields):
+    missing = []
+    for field in required_fields:
+        if field not in data:
+            missing.append(field)
+            continue
+        value = data.get(field)
+        # Allow 0 for numeric fields; reject None/empty strings.
+        if value is None or (isinstance(value, str) and value.strip() == ""):
+            missing.append(field)
+    return missing
+
+
+def _parse_non_negative_float(value, field_name):
+    try:
+        parsed = float(value)
+    except (TypeError, ValueError):
+        raise ValueError(f"{field_name} must be a number")
+    if parsed < 0:
+        raise ValueError(f"{field_name} cannot be negative")
+    return parsed
+
+
+def _parse_non_negative_decimal(value, field_name):
+    try:
+        parsed = Decimal(str(value))
+    except (InvalidOperation, TypeError, ValueError):
+        raise ValueError(f"{field_name} must be a number")
+    if parsed < 0:
+        raise ValueError(f"{field_name} cannot be negative")
+    return parsed
 
 # Shipment CRUD operations (Create, Read, Update, Delete)
 # Employees register shipments (sent and received)
@@ -79,8 +113,16 @@ def create_shipment():
     
     required_fields = ["sender_id", "receiver_id", "tracking_number", 
                       "weight", "dimensions", "description", "price", "origin_address", "destination_address"]
-    if not all(data.get(field) for field in required_fields):
-        return jsonify({"error": f"Required fields: {', '.join(required_fields)}"}), 400
+    missing = _missing_required_fields(data, required_fields)
+    if missing:
+        return jsonify({"error": f"Required fields: {', '.join(missing)}"}), 400
+
+    # Validate numeric fields (prevents negative weight/price)
+    try:
+        weight = _parse_non_negative_float(data.get("weight"), "weight")
+        price = _parse_non_negative_decimal(data.get("price"), "price")
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
     
     if Shipment.query.filter_by(tracking_number=data.get("tracking_number")).first():
         return jsonify({"error": "Tracking number already exists"}), 400
@@ -107,10 +149,10 @@ def create_shipment():
         receiver_id=data.get("receiver_id"),
         registered_by_employee_id=registered_by_employee_id,
         tracking_number=data.get("tracking_number"),
-        weight=data.get("weight"),
+        weight=weight,
         dimensions=data.get("dimensions"),
         description=data.get("description"),
-        price=data.get("price"),
+        price=price,
         sent_date=datetime.fromisoformat(data.get("sent_date")) if data.get("sent_date") else datetime.utcnow(),
         status=data.get("status", "PENDING"),
         origin_address=data.get("origin_address"),
@@ -148,8 +190,13 @@ def update_shipment(shipment_id):
     # Mark shipment as received with date
     if data.get("received_date") and data.get("status") == "DELIVERED":
         shipment.received_date = datetime.fromisoformat(data.get("received_date"))
-    
-    shipment.weight = data.get("weight", shipment.weight)
+
+    if "weight" in data:
+        try:
+            shipment.weight = _parse_non_negative_float(data.get("weight"), "weight")
+        except ValueError as e:
+            return jsonify({"error": str(e)}), 400
+
     shipment.dimensions = data.get("dimensions", shipment.dimensions)
     shipment.description = data.get("description", shipment.description)
     
